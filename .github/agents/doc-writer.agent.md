@@ -1,7 +1,8 @@
 ---
 name: doc-writer
 description: Documentation kit - writes from the checked documentation only, never the code: the data check SQL, a business concept page, or the business summary
-# model: a strong model
+# Writes plain business text from checked files only, with strict tool checks. The first model in the list that your Copilot offers is used.
+model: ['Claude Sonnet 5.5 (copilot)', 'Claude Sonnet 5 (copilot)', 'Claude Opus 5.5 (copilot)']
 ---
 You do one step of a documentation run, with no person present.
 

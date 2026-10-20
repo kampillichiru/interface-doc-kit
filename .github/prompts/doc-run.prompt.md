@@ -1,6 +1,9 @@
 ---
 description: Documentation kit - document a module from its source code (flows, business rules, outputs), checked step by step
 agent: agent
+# The controller only runs doc.py and starts agents; its context grows over the whole run, so a light
+# model costs least with no loss: every judgement is made by the agents and the tool.
+model: ['GPT-6 Luna (copilot)', 'Claude Haiku 5.5 (copilot)']
 ---
 # Document a module
 

@@ -1,7 +1,8 @@
 ---
 name: doc-reviewer
 description: Documentation kit - reads the finished business guide and reference as a business analyst or SME, answers the tool's questions with chains of ids, and lists what does not connect
-# model: a strong model, ideally not the one that wrote the documents. Never the source code.
+# A strong model from another vendor than the writer it reviews. Never the source code. The first model in the list that your Copilot offers is used.
+model: ['GPT-6 Sol (copilot)', 'Gemini 4 Argon (copilot)', 'Claude Opus 5.5 (copilot)']
 ---
 You do one step of a documentation run, with no person present.
 

@@ -7,6 +7,7 @@ never touched.
 """
 
 import hashlib
+import re
 import shutil
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -61,8 +62,27 @@ def _instructions_after(current: str) -> str:
     return current.rstrip("\n") + "\n\n" + block + "\n"
 
 
-def _digest(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+_MODEL = re.compile(r"^model:.*$", re.M)
+
+
+def _keeps_model(rel: str) -> bool:
+    """Agents and the /doc-run prompt: the project chooses their models; an update keeps its choice."""
+    return rel.endswith(".agent.md") or rel.endswith(".prompt.md")
+
+
+def _digest(path: Path, rel: str = "") -> str:
+    data = path.read_bytes().replace(b"\r\n", b"\n")
+    if _keeps_model(rel):
+        data = _MODEL.sub("", data.decode("utf-8", errors="replace")).encode("utf-8")
+    return hashlib.sha256(data).hexdigest()
+
+
+def _with_model(kit_text: str, project_text: str) -> str:
+    """The kit's file with the project's own `model:` line, when the project has one."""
+    mine = _MODEL.search(project_text)
+    if not mine or not _MODEL.search(kit_text):
+        return kit_text
+    return _MODEL.sub(lambda _: mine.group(0), kit_text, count=1)
 
 
 @dataclass
@@ -90,7 +110,7 @@ def plan(target: Path) -> Changes:
     for rel in sorted(kit):
         if rel not in project:
             changes.added.append(rel)
-        elif _digest(KIT_ROOT / rel) != _digest(target / rel):
+        elif _digest(KIT_ROOT / rel, rel) != _digest(target / rel, rel):
             changes.updated.append(rel)
     changes.removed = sorted(project - kit)
     current = (target / INSTRUCTIONS).read_text(encoding="utf-8") if (target / INSTRUCTIONS).exists() else ""
@@ -114,6 +134,9 @@ def install(target: Path, changes: Changes) -> Path:
         if rel == INSTRUCTIONS:
             current = dest.read_text(encoding="utf-8") if dest.exists() else ""
             dest.write_text(_instructions_after(current), encoding="utf-8")
+        elif _keeps_model(rel) and dest.exists():
+            kit_text = (KIT_ROOT / rel).read_text(encoding="utf-8")
+            dest.write_text(_with_model(kit_text, dest.read_text(encoding="utf-8")), encoding="utf-8")
         else:
             shutil.copy2(KIT_ROOT / rel, dest)
     return backup

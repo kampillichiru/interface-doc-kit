@@ -223,9 +223,22 @@ guessing.
    touches `doc-output/`.
 2. Python 3.8 or newer must be on the path (`python --version`).
 3. VS Code, Copilot Chat in **Agent** mode, with prompt files, custom agents and agent skills enabled in Settings.
-4. In `.github/agents/*.agent.md`, set the `model:` lines: the strongest model for the discoverer, explainer,
-   writer and reviewer, a **different** model for the verifier, and any model for the reader (a smaller one reads
-   more like a newcomer).
+4. **Models.** Each agent and `/doc-run` already names its models, best first; VS Code uses the first one your
+   Copilot offers. Quality comes first; the cost is saved where it costs no quality:
+
+   | Agent | Models | Why |
+   |---|---|---|
+   | `/doc-run` | GPT-6 Luna, Claude Haiku 5.5 | Only runs `doc.py` and starts agents, over the whole run: a light model |
+   | `doc-discoverer` | Claude Opus 5.5, Opus 5, Sonnet 5.5 | Once or twice; everything depends on it |
+   | `doc-explainer` | Claude Opus 5.5, Opus 5, Sonnet 5.5 | The core accuracy work; a weaker model costs more in retries |
+   | `doc-verifier` | GPT-6 Sol, GPT-5.6 Sol, Gemini 4 Argon | Strong, and another vendor than the explainer: no shared blind spots |
+   | `doc-writer` | Claude Sonnet 5.5, Sonnet 5, Opus 5.5 | Plain business text from checked files, with strict tool checks |
+   | `doc-reader` | Claude Haiku 5.5, GPT-6 Luna | A small model reads like a newcomer |
+   | `doc-reviewer` | GPT-6 Sol, Gemini 4 Argon, Claude Opus 5.5 | Strong, and another vendor than the writer it reviews |
+
+   Change a `model:` line to what your organisation allows (the names as the Copilot model picker shows them,
+   with ` (copilot)`). `doc.py install` keeps your `model:` lines when it updates the kit. In the first run,
+   check in the chat that each agent shows the model you expect.
 
 ## Run it
 

@@ -2,6 +2,7 @@
 Run from the tools folder: python -m unittest discover tests"""
 
 import io
+import re
 import sys
 import tempfile
 import unittest
@@ -64,6 +65,20 @@ class InstallTest(unittest.TestCase):
         self.assertEqual((backup / ".github/agents/doc-output-tracer.agent.md").read_text(), "old agent")
         self.assertEqual((backup / ".github/doc-kit/steps/0-rules.md").read_text(), "old rules")
         self.assertTrue(install.plan(self.project).standard)
+
+    def test_a_project_keeps_its_own_models(self):
+        self.run_cli()
+        agent = self.project / ".github/agents/doc-explainer.agent.md"
+        text = agent.read_text(encoding="utf-8")
+        agent.write_text(re.sub(r"^model:.*$", "model: ['Our Model (copilot)']", text, flags=re.M), encoding="utf-8")
+        self.assertTrue(install.plan(self.project).standard)  # a model choice is not a difference
+        (self.project / ".github/doc-kit/steps/0-rules.md").write_text("old", encoding="utf-8")
+        (self.project / ".github/agents/doc-explainer.agent.md").write_text(
+            agent.read_text(encoding="utf-8").replace("You do one step", "You do a step"), encoding="utf-8")
+        self.run_cli()
+        updated = agent.read_text(encoding="utf-8")
+        self.assertIn("model: ['Our Model (copilot)']", updated)
+        self.assertIn("You do one step", updated)  # the rest of the agent is the kit's
 
     def test_project_instructions_are_kept(self):
         path = self.write(".github/copilot-instructions.md", "# Our project\n\nUse tabs.\n")

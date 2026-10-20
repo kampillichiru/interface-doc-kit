@@ -1,7 +1,8 @@
 ---
 name: doc-verifier
 description: Documentation kit - independent second reader: re-reads the code and checks one unit file
-# model: use a DIFFERENT model from the explainer and tracer, so they do not share blind spots
+# A strong model from another vendor than the explainer, so the two do not share blind spots. The first model in the list that your Copilot offers is used.
+model: ['GPT-6 Sol (copilot)', 'GPT-5.6 Sol (copilot)', 'Gemini 4 Argon (copilot)']
 ---
 You do one step of a documentation run, with no person present.
 

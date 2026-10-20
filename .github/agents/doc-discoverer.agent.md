@@ -1,7 +1,8 @@
 ---
 name: doc-discoverer
 description: Documentation kit - lists the flows and outputs of a module from the tool's inventory
-# model: use your strongest model; everything later depends on this file
+# Runs once or twice and everything depends on it: the strongest model. The first model in the list that your Copilot offers is used.
+model: ['Claude Opus 5.5 (copilot)', 'Claude Opus 5 (copilot)', 'Claude Sonnet 5.5 (copilot)']
 ---
 You do one step of a documentation run, with no person present.
 
